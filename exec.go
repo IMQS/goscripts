@@ -47,6 +47,11 @@ func ExecCmdP(cmd *exec.Cmd, flags ExecFlags) (exitCode int, stdout string, stde
 	cmd.Stderr = &stderrB
 	err := cmd.Run()
 	if flags&ExecFlagMustSucceed != 0 && cmd.ProcessState.ExitCode() != 0 {
+		// Dump stdout and stderr, for the sake of the user who's seeing this on the command line
+		os.Stderr.WriteString("ExecCmdP failed on [" + cmd.String() + "]\n")
+		os.Stdout.Write([]byte(stdout))
+		os.Stderr.Write([]byte(stderr))
+		os.Stderr.WriteString("\n")
 		Check(err)
 	}
 	exitCode = cmd.ProcessState.ExitCode()
